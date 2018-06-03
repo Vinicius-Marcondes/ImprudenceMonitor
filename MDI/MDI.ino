@@ -108,8 +108,3 @@ void printCalculatedAccels() {
   Serial.print('\t');
 }
 
-//INSERT INTO MDI.REGISTRO (ID_ARDUINO,FUNCIONARIO,CONT,VALOR_X,VALOR_Y) VALUES (1, 'JOZIAS', 0, 0, 0);
-
-
-
-
