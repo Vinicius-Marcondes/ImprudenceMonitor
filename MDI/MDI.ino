@@ -49,22 +49,25 @@ void setup() {
   sprintf(ID, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
   client.println(ID);
   delay(2000);
-  c = client.read();//recebe nomero de infrações
+  c = client.read();//recebe numero de infrações
   CONT = c - 48;//converte c em inteiro;
   client.println("Connection: close");
   client.stop();  
   while (!client.connect(server, 8080));
-  sprintf(NOME, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
+  sprintf(NOME, "GET /nome.php?ID_ARDUINO=%d", ID_ARDUINO);
   client.println(NOME);
-  client.println();
-  delay(2000);
+  Serial.println("Recebendo nome do funcionário...");
+  delay(500);
   while(client.available()){//loop para pegar o nome do funcionário
     i = client.read(); 
     string = string+i;
     client.println("Connection: keep-alive");
-    delay(500); 
   }//fecha o loop
+  Serial.print("Nome do funcionario: ");
   Serial.println(string);
+  Serial.print("Infrações atuais: ");
+  Serial.print(c);
+  Serial.println();
   client.println("Connection: close");
   client.stop();  
 }
@@ -94,6 +97,8 @@ void loop() {
       client.println(URL);//ENVIA A URL USANDO GET
       Serial.println("URL enviada: ");
       Serial.println(URL);
+      accel.cx = 0;
+      accel.cy = 0;
       client.println("Connection: close");
       client.stop();
       delay(500);
