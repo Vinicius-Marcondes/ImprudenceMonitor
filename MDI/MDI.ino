@@ -59,8 +59,9 @@ void setup() {
   Serial.println("Recebendo nome do funcionário...");
   delay(500);
   while(client.available()){//loop para pegar o nome do funcionário
-    i = client.read(); 
-    string = string+i;
+    //i = client.read();
+    string = client.read();
+    string = string+string;
     client.println("Connection: keep-alive");
   }//fecha o loop
   Serial.print("Nome do funcionario: ");
