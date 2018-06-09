@@ -18,10 +18,13 @@
                 <h2>ADICIONAR ADMINISTRADOR</h2>
               </div>
               <div class="body">
-                <div class="alert alert-success"><strong>Well Done!</strong> You successfully read this important alert message.</div>
-                <div class="alert alert-warning"><strong>Warning!</strong> Better check yourself, you're not looking too good.</div>
-                <div class="alert alert-danger"><strong>Oh snap!</strong> Change a few things up and try submitting again.</div>
-                <form id="form_validation" method="POST">
+                <?php 
+				if(isset($_SESSION['mensagem_perfil'])){
+					echo $_SESSION['mensagem_perfil'];
+					unset($_SESSION['mensagem_perfil']);
+				}
+				?>
+                <form id="form_validation" method="POST" action="processos/registro_administrador.php">
                   <div class="form-group form-float">
                     <div class="form-line">
                       <input type="text" class="form-control" name="nome"  maxlength="100" autofocus required>
@@ -72,9 +75,9 @@
                     <div class="help-info">Ex: 81730-280</div>
                   </div>
                   <div class="form-group">
-                    <input type="radio" name="gender" id="male" class="with-gap">
+                    <input type="radio" name="gender" id="male" class="with-gap" value="Masculino" checked>
                     <label for="male">Masculino</label>
-                    <input type="radio" name="gender" id="female" class="with-gap">
+                    <input type="radio" name="gender" id="female" class="with-gap" value="Feminino">
                     <label for="female" class="m-l-20">Feminino</label>
                   </div>
                   <button type="submit" class="btn bg-orange waves-effect"><i class="material-icons">save</i><span>ADICIONAR</span></button>

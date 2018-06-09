@@ -19,7 +19,7 @@
         <div class="btn-group user-helper-dropdown">
           <i class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="color: black">keyboard_arrow_down</i>
           <ul class="dropdown-menu pull-right">
-            <li><a href="profile.html"><i class="material-icons">person</i>Perfil</a></li>
+            <li><a href="profile.php"><i class="material-icons">person</i>Perfil</a></li>
             <li role="seperator" class="divider"></li>
             <li><a href="../sair.php"><i class="material-icons">input</i>Desconectar</a></li>
           </ul>
@@ -134,6 +134,12 @@
             </li>
           </ul>
         </li>
+		<?php if($nome_arquivo == 'profile'){ 
+		echo
+		"<li class='active' style='display: none;'>
+			<a href='profile.php'><i class='material-icons'>person</i><span>Perfil</span></a>
+		</li>";
+		} ?>
       </ul>
     </div>
     <div class="legal">

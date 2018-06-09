@@ -1,59 +1,33 @@
 ﻿<?php 
-	require('banco.php');
-		if(empty($_POST['nome'])){
-			header('Location: ../registro.php');
-		} else {
-			$nome = $_POST['nome'];
-		}
-		
-		if(empty($_POST['email'])){
-			header('Location: ../registro.php');
-		} else {
-			$tmp_email = $_POST['email']; //Variavel temporaria
-			$c_email = "SELECT * FROM empresas where emailE = '$tmp_email'";
-			$v_email =  $conecta_banco->query($c_email);
-			if($v_email->num_rows == 0){ //Verificar se email já existe no banco
-				$email = $_POST['email'];
-			} else {
-				header('Location: ../registro.php');
-			}
-		}
-		
-		if(empty($_POST['cnpj'])){
-			header('Location: ../registro.php');
-		} else {
-			$tmp_cnpj = $_POST['cnpj'];
-			$c_cnpj = "SELECT * FROM empresas where cnpjE = '$tmp_cnpj'";
-			$v_cnpj =  $conecta_banco->query($c_cnpj);
-			if($v_cnpj->num_rows == 0){ //Verificar se cnpj já existe no banco
-				$cnpj = $_POST['cnpj'];
-			} else {
-				header('Location: ../registro.php');
-			}
-		}
-		
-		if(empty($_POST['cep'])){
-			header('Location: ../registro.php');
-		} else {
-			$cep = $_POST['cep'];
-		}
-		
-		if(empty($_POST['telefone'])){
-			header('Location: ../registro.php');
-		} else {
-			$telefone = $_POST['telefone'];
-		}
-		
-		if(empty($_POST['password'])){
-			header('Location: ../registro.php');
-		} else {
-			$senha = hash("sha256", hash("sha256", $_POST['password'])); //Senha é criptografada duas vezes para ser inserida no banco.
-		}
-		
+	require('../../banco.php');
+	session_start();
 	
-	
-	
-	if(isset($nome) && isset($email) && isset($cnpj) && isset($cep) && isset($telefone) && isset($senha)){
+	$nome = $_POST['nome'];
+	$cep = $_POST['cep'];
+	$telefone = $_POST['telefone'];
+	$senha = hash("sha256", hash("sha256", $_POST['password']));
+		
+	$tmp_email = $_POST['email']; 
+	$c_email = "SELECT * FROM empresas where emailE = '$tmp_email'";
+	$v_email =  $conecta_banco->query($c_email);
+	if($v_email->num_rows == 0){ 
+		$email = $_POST['email'];
+	} else {
+		$_SESSION['mensagem_perfil'] = "<div class='alert alert-warning'><strong>Atenção!</strong> Este email já está em uso.</div>";
+		header('Location: ../adicionar_empresas.php');
+	}
+		
+	$tmp_cnpj = $_POST['cnpj'];
+	$c_cnpj = "SELECT * FROM empresas where cnpjE = '$tmp_cnpj'";
+	$v_cnpj =  $conecta_banco->query($c_cnpj);
+	if($v_cnpj->num_rows == 0){ 
+		$cnpj = $_POST['cnpj'];
+	} else {
+		$_SESSION['mensagem_perfil'] = "<div class='alert alert-warning'><strong>Atenção!</strong> Este cnpj já está em uso.</div>";
+		header('Location: ../adicionar_empresas.php');
+	}
+		
+	if(isset($email) && isset($cnpj)){
 		$d_empresa = "INSERT INTO empresas (nomeE, emailE, cnpjE, cepE, telefoneE, senhaE, perfilE) 
 		VALUES ('$nome', '$email', '$cnpj', '$cep', '$telefone', '$senha', '2')";
 		$ins_empresa = $conecta_banco->query($d_empresa);
@@ -61,7 +35,7 @@
 		if(isset($_FILES['arquivo'])){
 			$extensao = strtolower(substr($_FILES['arquivo']['name'], -4));
 			$novo_nome = md5(time()). $extensao;
-			$diretorio = "../uploads/";
+			$diretorio = "../../../uploads/";
 			move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.$novo_nome);
 			$c_empresas = "SELECT * FROM empresas where emailE = '$email'";
 			$v_id =  $conecta_banco->query($c_empresas);
@@ -71,9 +45,13 @@
 			VALUES (null, '$novo_nome', '$idE', NOW())";
 			$ins_logo = $conecta_banco->query($d_logo);
 		}
-		//Limpar variaveis temporarias
-		unset($tmp_email);
-		unset($tmp_cnpj);
-		header('Location: ../login.php');
+		
+		if($ins_empresa == true){
+			$_SESSION['mensagem_perfil'] = "<div class='alert alert-success'><strong>Sucesso!</strong> Empresa adicionada ao banco.</div>";
+			header('Location: ../adicionar_empresas.php');
+		} else {
+			$_SESSION['mensagem_perfil'] = "<div class='alert alert-danger'><strong>Erro!</strong> Por favor tente novamente em alguns instantes.</div>";
+			header('Location: ../adicionar_empresas.php');
+		}
 	}
 ?>

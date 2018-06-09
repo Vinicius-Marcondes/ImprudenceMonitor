@@ -36,6 +36,7 @@
 				$_SESSION['cpf'] = $coluna_pessoa['cpfP'];
 				$_SESSION['telefone'] = $coluna_pessoa['telefoneP'];
 				$_SESSION['cep'] = $coluna_pessoa['cepP'];
+				$_SESSION['sexo'] = $coluna_pessoa['sexoP'];
 				$_SESSION['perfil'] = $coluna_pessoa['perfilP'];
 				$_SESSION['empresa'] = $coluna_pessoa['empresaP'];
 				if($_SESSION['empresa'] > 0){

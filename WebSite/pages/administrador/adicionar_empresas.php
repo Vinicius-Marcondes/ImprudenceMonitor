@@ -18,10 +18,13 @@
                 <h2>ADICIONAR EMPRESA</h2>
               </div>
               <div class="body">
-                <div class="alert alert-success"><strong>Well Done!</strong> You successfully read this important alert message.</div>
-                <div class="alert alert-warning"><strong>Warning!</strong> Better check yourself, you're not looking too good.</div>
-                <div class="alert alert-danger"><strong>Oh snap!</strong> Change a few things up and try submitting again.</div>
-                <form id="form_validation" method="POST" enctype="multipart/form-data">
+                <?php 
+				if(isset($_SESSION['mensagem_perfil'])){
+					echo $_SESSION['mensagem_perfil'];
+					unset($_SESSION['mensagem_perfil']);
+				}
+				?>
+                <form id="form_validation" method="POST" enctype="multipart/form-data" action="processos/registro_empresa.php">
                   <div class="form-group form-float">
                     <div class="form-line">
                       <input type="text" class="form-control" name="nome"  maxlength="100" autofocus required>
