@@ -1,3 +1,5 @@
+
+
 /*-----------------------------------------------------------------------
 CREATE DATABASE MDI;
 CREATE TABLE MDI.REGISTRO (
@@ -14,6 +16,9 @@ CREATE TABLE MDI.REGISTRO (
 #include <Ethernet.h>
 #include <Wire.h>
 #include <SparkFun_MMA8452Q.h>
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(4,5,6,7,8,9);
 MMA8452Q accel;
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };//mac do arduino
@@ -24,28 +29,37 @@ char X[16];
 char Y[16];
 char c;//infrações
 char i;//lê os valores do nome do funcionário
-char CONT;
+int CONT;
 int ID_ARDUINO = 1;
 int t = 0;
 float f;
 float b;
 float delta;
 String string;//Armazena o nome completo do funcionário
-
-IPAddress server(191,239,243,126); //ip da internet
-IPAddress ip(192, 168, 100, 60); //ip do arduino
+IPAddress server(191,239,252,98); //ip da internet
+IPAddress ip(192,168,100,60); //ip do arduino
 EthernetClient client;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Waiting for Serial!");
-  while(!Serial);
+  lcd.begin(16, 2);
+  pinMode(3,OUTPUT);
+  analogWrite(3,40);
+  lcd.setCursor(0,0);
+  lcd.print("Initializing...");  
   Ethernet.begin(mac, ip);
-  accel.init();
   delay(5000);
-  Serial.println("Connecting to server");
+  accel.init();
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Connecting...");
   while (!client.connect(server, 8080));
-  Serial.println("Connected");
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Connected");
+  delay(1000);
+  lcd.clear();
+  lcd.print("Fetching data...");
   sprintf(ID, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
   client.println(ID);
   delay(2000);
@@ -56,19 +70,22 @@ void setup() {
   while (!client.connect(server, 8080));
   sprintf(NOME, "GET /nome.php?ID_ARDUINO=%d", ID_ARDUINO);
   client.println(NOME);
-  Serial.println("Recebendo nome do funcionário...");
   delay(500);
-  while(client.available()){//loop para pegar o nome do funcionário
-    //i = client.read();
-    string = client.read();
-    string = string+string;
+  while(client.available()){//loop para pegar o id do funcionário
+    i = client.read();
+    string = string+i;
     client.println("Connection: keep-alive");
   }//fecha o loop
-  Serial.print("Nome do funcionario: ");
-  Serial.println(string);
-  Serial.print("Infrações atuais: ");
-  Serial.print(c);
-  Serial.println();
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("User ID: ");
+  lcd.setCursor(8,0);
+  lcd.print(string);
+  lcd.setCursor(0,1);
+  lcd.print("Delitos:");
+  lcd.setCursor(8,1);
+  lcd.print(CONT);
+  Serial.print(CONT);
   client.println("Connection: close");
   client.stop();  
 }
@@ -92,6 +109,10 @@ void loop() {
       float VALOR_Y = accel.cy;
       CONT++;
       Serial.println("INFRACAO");
+      lcd.setCursor(0,1);
+      lcd.print("Delitos:");
+      lcd.setCursor(8,1);
+      lcd.print(CONT);
       dtostrf(VALOR_X, 1, 2, X);
       dtostrf(VALOR_Y, 1, 2, Y);
       sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
@@ -100,9 +121,16 @@ void loop() {
       Serial.println(URL);
       accel.cx = 0;
       accel.cy = 0;
+      tone (2,440);
+      delay(500);
+      noTone(2);
+      delay(200);
       client.println("Connection: close");
       client.stop();
       delay(500);
+      delta = 0;
+      f=0;
+      b=0;
     }
   }
 }
