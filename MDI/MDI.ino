@@ -1,5 +1,4 @@
 
-
 /*-----------------------------------------------------------------------
 CREATE DATABASE MDI;
 CREATE TABLE MDI.REGISTRO (
@@ -102,7 +101,7 @@ void loop() {
       b = accel.cy;
       t = 0;
     }
-    delta = (f - b);
+    delta = (b - f);
     if (accel.cx > 1 || delta > 0.7 || delta < -0.7|| accel.cy >1 || accel.cy <-1) {
       while (!client.connect(server, 8080));
       float VALOR_X = accel.cx;
