@@ -42,7 +42,7 @@
           </a>
         </li>
         <?php
-				if($nome_arquivo == 'adicionar_perfil' || $nome_arquivo == 'listagem_perfil'){
+				if($nome_arquivo == 'imprudencias' || $nome_arquivo == 'empresa'){
 						$active = 'active';
 				} else {
 						unset($active);
@@ -50,13 +50,13 @@
         ?>
         <li <?php if(isset($active)){ echo "class='$active'"; } ?>>
           <a href="javascript:void(0);" class="menu-toggle">
-            <i class="material-icons">mode_edit</i>
-            <span>Funções</span>
+            <i class="material-icons">info</i>
+            <span>Informações</span>
           </a>
           <?php
-  				if($nome_arquivo == 'adicionar_perfil'){
+  				if($nome_arquivo == 'empresa'){
   						$active1 = 'active';
-  				} else if($nome_arquivo == 'listagem_perfil'){
+  				} else if($nome_arquivo == 'imprudencias'){
   					  $active2 = 'active';
   				} else {
               unset($active1);
@@ -65,72 +65,10 @@
           ?>
           <ul class="ml-menu">
             <li <?php if(isset($active1)){ echo "class='$active1'"; } ?>>
-              <a href="adicionar_perfil.php">Adicionar função</a>
+              <a href="empresa.php">Empresa</a>
             </li>
             <li <?php if(isset($active2)){ echo "class='$active2'"; } ?>>
-              <a href="listagem_perfil.php">Listagem</a>
-            </li>
-          </ul>
-        </li>
-        <?php
-				if($nome_arquivo == 'adicionar_empresas' || $nome_arquivo == 'listagem_empresas'){
-						$active = 'active';
-				} else {
-						unset($active);
-				}
-        ?>
-        <li <?php if(isset($active)){ echo "class='$active'"; } ?>>
-          <a href="javascript:void(0);" class="menu-toggle">
-            <i class="material-icons">business</i>
-            <span>Empresas</span>
-          </a>
-          <?php
-  				if($nome_arquivo == 'adicionar_empresas'){
-  						$active1 = 'active';
-  				} else if($nome_arquivo == 'listagem_empresas'){
-  					  $active2 = 'active';
-  				} else {
-              unset($active1);
-              unset($active2);
-          }
-          ?>
-          <ul class="ml-menu">
-            <li <?php if(isset($active1)){ echo "class='$active1'"; } ?>>
-              <a href="adicionar_empresas.php">Adicionar empresa</a>
-            </li>
-            <li <?php if(isset($active2)){ echo "class='$active2'"; } ?>>
-              <a href="listagem_empresas.php">Listagem</a>
-            </li>
-          </ul>
-        </li>
-        <?php
-				if($nome_arquivo == 'adicionar_administrador' || $nome_arquivo == 'listagem_funcionarios'){
-						$active = 'active';
-				} else {
-						unset($active);
-				}
-        ?>
-        <li <?php if(isset($active)){ echo "class='$active'"; } ?>>
-          <a href="javascript:void(0);" class="menu-toggle">
-            <i class="material-icons">people</i>
-            <span>Funcionários</span>
-          </a>
-          <?php
-  				if($nome_arquivo == 'adicionar_administrador'){
-  						$active1 = 'active';
-  				} else if($nome_arquivo == 'listagem_funcionarios'){
-  					  $active2 = 'active';
-  				} else {
-              unset($active1);
-              unset($active2);
-          }
-          ?>
-          <ul class="ml-menu">
-            <li <?php if(isset($active1)){ echo "class='$active1'"; } ?>>
-              <a href="adicionar_administrador.php">Adicionar administrador</a>
-            </li>
-            <li <?php if(isset($active2)){ echo "class='$active2'"; } ?>>
-              <a href="listagem_funcionarios.php">Listagem</a>
+              <a href="imprudencias.php">Imprudências</a>
             </li>
           </ul>
         </li>
