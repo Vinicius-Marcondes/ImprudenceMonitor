@@ -1,4 +1,3 @@
-
 /*-----------------------------------------------------------------------
 CREATE DATABASE MDI;
 CREATE TABLE MDI.REGISTRO (
@@ -42,8 +41,6 @@ EthernetClient client;
 void setup() {
   Serial.begin(9600);
   lcd.begin(16, 2);
-  pinMode(3,OUTPUT);
-  analogWrite(3,40);
   lcd.setCursor(0,0);
   lcd.print("Initializing...");  
   Ethernet.begin(mac, ip);
@@ -120,9 +117,9 @@ void loop() {
       Serial.println(URL);
       accel.cx = 0;
       accel.cy = 0;
-      tone (2,440);
+      tone (3,440);
       delay(500);
-      noTone(2);
+      noTone(3);
       delay(200);
       client.println("Connection: close");
       client.stop();
