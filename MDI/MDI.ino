@@ -15,8 +15,8 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char URL[64];
 int CONT = 10;
 int ID_ARDUINO = 1;
-char X[4];
-char Y[4];
+char X[8];
+char Y[8];
 
 void setup() {  
   Serial.begin(9600);  
@@ -45,42 +45,54 @@ bool conn(){
 }
 
 void escrever(String var){
-  myFile = SD.open("log.txt", FILE_WRITE);
-  // if the file opened okay, write to it:
+  myFile = SD.open("loog.txt", FILE_WRITE);
   if (myFile) {
     myFile.println(var);
-    // close the file:
     myFile.close();
     Serial.println("done.");
-    } else {
-      // if the file didn't open, print an error:
-      Serial.println("error opening test.txt");
-      }
+    } 
+    else {
+      Serial.println("error gravar");
+    }
 }
-void ler(){  
-  myFile = SD.open("log.txt");
+void ler(){
+  myFile = SD.open("loog.txt");
   if (myFile) {
-    Serial.println("log.txt:");
-    while (myFile.available()) {
-      int AA = myFile.read();
-      Serial.write(AA); 
-    }    
-    myFile.close();
+    Serial.println("log.txt:");    
+    conn();
+    int AA = (while (myFile.available()) {
+      myFile.read();  
+    });
+    myFile.close(); 
+    
+      
+      /*client.write(myFile.read());
+      client.println("Connection: close");   
+      client.stop()  */
+    
   } 
   else {    
-    Serial.println("error opening test.txt");
+    Serial.println("error ler");
   }
+}
+
+void printCalculatedAccels(){
+  Serial.print(accel.cx);
+  Serial.print("\t");
+  Serial.print(accel.cy);
+  Serial.print("\t");
 }
 
 void loop() {
   accel.read();
-  if(accel.cx > 1){
-    float VALOR_X = accel.cx;
-    float VALOR_Y = accel.cy;
-    dtostrf(VALOR_X, 1, 2, X);
-    dtostrf(VALOR_Y, 1, 2, Y);
+  printCalculatedAccels();
+  if(accel.cx > 1){   
+    dtostrf(accel.cx, 1, 2, X);
+    dtostrf(accel.cy, 1, 2, Y);
     sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
     escrever(URL);
     ler();
-  } 
+    delay(5000);
+  }  
+  Serial.println(); 
 }
