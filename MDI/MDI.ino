@@ -45,7 +45,7 @@ bool conn(){
 }
 
 void escrever(String var){
-  myFile = SD.open("loog.txt", FILE_WRITE);
+  myFile = SD.open("log.txt", FILE_WRITE);
   if (myFile) {
     myFile.println(var);
     myFile.close();
@@ -56,15 +56,18 @@ void escrever(String var){
     }
 }
 void ler(){
-  myFile = SD.open("loog.txt");
+  myFile = SD.open("log.txt");
+  char buff[64];
   if (myFile) {
     Serial.println("log.txt:");    
     conn();
-    int AA = (while (myFile.available()) {
-      myFile.read();  
-    });
-    myFile.close(); 
-    
+    while (myFile.available()) {      
+      myFile.read(buff,65);      
+    }    
+    if(sendData(buff)==true){
+      SD.rmdir("log.txt");      
+    }
+    myFile.close();     
       
       /*client.write(myFile.read());
       client.println("Connection: close");   
@@ -74,6 +77,13 @@ void ler(){
   else {    
     Serial.println("error ler");
   }
+}
+bool sendData(char var[64]){
+  conn();
+  client.write(var);
+  client.print("Connection: close");
+  client.stop();
+  return true;
 }
 
 void printCalculatedAccels(){
