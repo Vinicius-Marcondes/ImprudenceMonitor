@@ -44,10 +44,10 @@ bool conn(){
   }  
 }
 
-void escrever(String var){
+void escrever(char var[64]){
   myFile = SD.open("log.txt", FILE_WRITE);
   if (myFile) {
-    myFile.println(var);
+    myFile.print(var);
     myFile.close();
     Serial.println("done.");
     } 
@@ -57,30 +57,27 @@ void escrever(String var){
 }
 void ler(){
   myFile = SD.open("log.txt");
-  char buff[64];
   if (myFile) {
+    char buff[128];
     Serial.println("log.txt:");    
-    conn();
+    //conn();
     while (myFile.available()) {      
-      myFile.read(buff,65);      
-    }    
-    if(sendData(buff)==true){
-      SD.rmdir("log.txt");      
+      myFile.read(buff,128);        
     }
-    myFile.close();     
-      
-      /*client.write(myFile.read());
-      client.println("Connection: close");   
-      client.stop()  */
-    
+    Serial.println("-------------");  
+    Serial.println(buff);           
+    Serial.println("-------------");
+    delay(5000);
+    myFile.close();   
   } 
   else {    
     Serial.println("error ler");
   }
 }
 bool sendData(char var[64]){
+  Serial.println(var);
   conn();
-  client.write(var);
+  client.println(var);
   client.print("Connection: close");
   client.stop();
   return true;
