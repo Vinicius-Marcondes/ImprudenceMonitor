@@ -58,16 +58,18 @@ void escrever(char var[64]){
 void ler(){
   myFile = SD.open("log.txt");
   if (myFile) {
-    char buff[128];
+    char buff[16];
     Serial.println("log.txt:");    
-    //conn();
+    conn();
     while (myFile.available()) {      
-      myFile.read(buff,128);        
+      int bt = myFile.read();
+      sprintf("GET /log.php?nome=%d", bt);
+      Serial.println(buff);
+      client.print(buff);
+      client.print("Connection: keep-alive");        
     }
-    Serial.println("-------------");  
-    Serial.println(buff);           
-    Serial.println("-------------");
-    delay(5000);
+    client.println("Connection: close");
+    client.stop();
     myFile.close();   
   } 
   else {    
