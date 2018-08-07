@@ -1,4 +1,3 @@
-
 #include <SD.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -8,7 +7,7 @@
 MMA8452Q accel;
 File myFile;
 IPAddress server(191,232,196,80); //ip da internet
-IPAddress ip(192,168,100,60); //ip do arduino
+IPAddress ip(10,95,52,30); //ip do arduino
 EthernetClient client;
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -45,11 +44,12 @@ bool conn(){
 }
 
 void escrever(char var[64]){
+  SD.remove("log.txt");
   myFile = SD.open("log.txt", FILE_WRITE);
   if (myFile) {
     myFile.print(var);
     myFile.close();
-    Serial.println("done.");
+    Serial.println("done");
     } 
     else {
       Serial.println("error gravar");
@@ -58,18 +58,13 @@ void escrever(char var[64]){
 void ler(){
   myFile = SD.open("log.txt");
   if (myFile) {
-    char buff[16];
+    char buff[64];
     Serial.println("log.txt:");    
-    conn();
+    //conn();
     while (myFile.available()) {      
-      int bt = myFile.read();
-      sprintf("GET /log.php?nome=%d", bt);
-      Serial.println(buff);
-      client.print(buff);
-      client.print("Connection: keep-alive");        
+      myFile.read(buff,64);       
     }
-    client.println("Connection: close");
-    client.stop();
+    Serial.println(buff);
     myFile.close();   
   } 
   else {    
