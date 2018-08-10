@@ -7,7 +7,7 @@
 MMA8452Q accel;
 File myFile;
 IPAddress server(191,232,196,80); //ip da internet
-IPAddress ip(10,95,52,30); //ip do arduino
+IPAddress ip(192,168,100,60); //ip do arduino
 EthernetClient client;
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -20,7 +20,7 @@ char Y[8];
 void setup() {  
   Serial.begin(9600);  
   Serial.print("Initializing SD card...");
-  while (!SD.begin(4));
+  //while (!SD.begin(4));
   Serial.println("DONE");
   accel.init(SCALE_8G, ODR_6); 
   Serial.println("Initializing Ethernet");
@@ -28,9 +28,19 @@ void setup() {
   delay(5000);
   if(conn() == true){
     Serial.println("DONE");
+     tone(2,440);
+    delay(500);
+    noTone(2);
   }
   else{
     Serial.println("FAILED");
+     tone(2,440);
+    delay(500);
+    noTone(2);
+    delay(500);
+     tone(2,440);
+    delay(500);
+    noTone(2);
   }
 }
 
@@ -49,7 +59,7 @@ void escrever(char var[64]){
   if (myFile) {
     myFile.print(var);
     myFile.close();
-    Serial.println("done");
+    Serial.println("done.");
     } 
     else {
       Serial.println("error gravar");
@@ -58,13 +68,16 @@ void escrever(char var[64]){
 void ler(){
   myFile = SD.open("log.txt");
   if (myFile) {
-    char buff[64];
+    char buff[128];
     Serial.println("log.txt:");    
     //conn();
     while (myFile.available()) {      
-      myFile.read(buff,64);       
+      myFile.read(buff,128);        
     }
-    Serial.println(buff);
+    Serial.println("-------------");  
+    Serial.println(buff);           
+    Serial.println("-------------");
+    delay(5000);
     myFile.close();   
   } 
   else {    
@@ -90,7 +103,10 @@ void printCalculatedAccels(){
 void loop() {
   accel.read();
   printCalculatedAccels();
-  if(accel.cx > 1){   
+  if(accel.cx > 1){
+    tone(2,440);
+    delay(500);
+    noTone(2);   
     dtostrf(accel.cx, 1, 2, X);
     dtostrf(accel.cy, 1, 2, Y);
     sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
