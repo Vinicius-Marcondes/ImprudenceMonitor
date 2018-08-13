@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Ethernet.h>
+#include <LiquidCrystal.h>
 #include <SparkFun_MMA8452Q.h>
 
 MMA8452Q accel;
@@ -9,6 +10,7 @@ File myFile;
 IPAddress server(191,232,196,80); //ip da internet
 IPAddress ip(192,168,100,60); //ip do arduino
 EthernetClient client;
+LiquidCrystal lcd(4,5,6,7,8,9);
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char URL[64];
@@ -16,9 +18,10 @@ int CONT = 10;
 int ID_ARDUINO = 1;
 char X[8];
 char Y[8];
-
+String userID;
 void setup() {  
-  Serial.begin(9600);  
+  Serial.begin(9600);
+  lcd.begin(16,2);  
   Serial.print("Initializing SD card...");
   //while (!SD.begin(4));
   Serial.println("DONE");
@@ -26,23 +29,17 @@ void setup() {
   Serial.println("Initializing Ethernet");
   Ethernet.begin(mac, ip);
   delay(5000);
-  if(conn() == true){
-    Serial.println("DONE");
-     tone(2,440);
-    delay(500);
-    noTone(2);
+  conn();
+  sprintf(URL,"GET /userID.php?ID_ARDUINO=%d",ID_ARDUINO);
+  client.print(URL);
+  while(client.available()){
+      char i = client.read();
+      userID = userID + i; 
+      client.print("Connection: keep-alive");
+    }
+    client.print("Connection: close");
+    client.stop();    
   }
-  else{
-    Serial.println("FAILED");
-     tone(2,440);
-    delay(500);
-    noTone(2);
-    delay(500);
-     tone(2,440);
-    delay(500);
-    noTone(2);
-  }
-}
 
 bool conn(){
   if(client.connect(server, 80)){
@@ -84,13 +81,22 @@ void ler(){
     Serial.println("error ler");
   }
 }
+
 bool sendData(char var[64]){
   Serial.println(var);
-  conn();
-  client.println(var);
-  client.print("Connection: close");
-  client.stop();
-  return true;
+  if(conn()==true){
+      if(client.println(var)){
+        client.print("Connection: close");
+        client.stop();
+        return true;
+    }
+    else{
+      return false;
+    }
+  }
+  else{
+      return false;
+  }
 }
 
 void printCalculatedAccels(){
@@ -100,9 +106,21 @@ void printCalculatedAccels(){
   Serial.print("\t");
 }
 
+void printLCD(String userID){
+  lcd.setCursor(0,0);
+  lcd.print("User ID: ");
+  lcd.setCursor(8,0);
+  lcd.print(userID);
+  lcd.setCursor(0,1);
+  lcd.print("Delitos: ");
+  lcd.setCursor(8,1);
+  lcd.print(CONT);  
+}
+
 void loop() {
   accel.read();
   printCalculatedAccels();
+  //printLCD(userID(ID_ARDUINO));
   if(accel.cx > 1){
     tone(2,440);
     delay(500);
