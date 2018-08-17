@@ -5,6 +5,9 @@
 #include <LiquidCrystal.h>
 #include <SparkFun_MMA8452Q.h>
 #define pinoutput 3
+#define port 80
+#define ID_ARDUINO  1
+
 MMA8452Q accel;
 File myFile;
 IPAddress server(191, 232, 196, 80); //ip da internet
@@ -15,7 +18,6 @@ LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char URL[64];
 int CONT;
-int ID_ARDUINO = 1;
 char X[8];
 char Y[8];
 String userid;
@@ -23,25 +25,24 @@ String userid;
 void setup() {
   pinMode(pinoutput, OUTPUT);
   analogWrite(pinoutput, 10);
-  
+
   Serial.begin(9600);
-  lcd.begin(16, 2);  
+  lcd.begin(16, 2);
   //while (!SD.begin(4));
   accel.init(SCALE_8G, ODR_6);
   Ethernet.begin(mac, ip);
-  
-  lcd.print("Initializing"); 
-  
-  delay(1000);
-  
-  getData();
+
+  lcd.print("Initializing");
+
+  delay(100);
+
+  getId();
+  getCont();
   printLCD();
-  Serial.print("User ID:\t");
-  Serial.print(userid);
 }
 
 bool conn() {
-  if (client.connect(server, 80)) {
+  if (client.connect(server, port)) {
     return true;
   }
   else {
@@ -49,38 +50,40 @@ bool conn() {
   }
 }
 
-String getData() {
+void getId() {
   if (conn()) {
-    sprintf(URL,"GET /userID.php?ID_ARDUINO=%d",ID_ARDUINO);
-    client.println(URL);   
+    sprintf(URL, "GET /userID.php?ID_ARDUINO=%d", ID_ARDUINO);
+    client.println(URL);
     client.println("Connection: close");
     client.println();
   } else {
-    getData();
+    getId();
   }
   delay(2000);
   while (client.available()) {
-    char c = client.read(); 
+    char c = client.read();
     userid = userid + c;
   }
   client.stop();
+}
+void getCont() {
   if (conn()) {
-    sprintf(URL,"GET /cont.php?ID_ARDUINO=%d",ID_ARDUINO);
-    client.println(URL); 
+    sprintf(URL, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
+    client.println(URL);
+    delay(500);
+    String cont;
+    while (client.available()) {
+      char c = client.read();
+      cont = cont + c;
+    }
+    CONT = cont.toInt();
+    Serial.println(CONT);
     client.println("Connection: close");
-    client.println();
-  } else {
-    getData();
+    client.stop();
   }
-  Serial.print("CONT:\t");
-  while(client.available()){
-    char c = client.read();
-    Serial.print(c);
+  else {
+    getCont();
   }
-  //Serial.print(CONT); 
-  delay(20000);
-  client.stop();
-  return userid;
 }
 
 void escrever(char var[64]) {
@@ -115,23 +118,6 @@ void ler() {
   }
 }
 
-bool sendData(char var[64]) {
-  Serial.println(var);
-  if (conn() == true) {
-    if (client.println(var)) {
-      client.print("Connection: close");
-      client.stop();
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-  else {
-    return false;
-  }
-}
-
 void printCalculatedAccels() {
   Serial.print(accel.cx);
   Serial.print("\t");
@@ -150,6 +136,23 @@ void printLCD() {
   lcd.print(CONT);
 }
 
+bool sendData(char var[64]) {
+  Serial.println(var);
+  if (conn() == true) {
+    if (client.println(var)) {
+      client.print("Connection: close");
+      client.stop();
+      return true;
+    }
+    else {
+      sendData(var);
+    }
+  }
+  else {
+    sendData(var);
+  }
+}
+
 void loop() {
   accel.read();
   printCalculatedAccels();
@@ -158,14 +161,11 @@ void loop() {
     tone(2, 440);
     delay(500);
     noTone(2);
-    conn();
+    CONT++;
     dtostrf(accel.cx, 1, 2, X);
     dtostrf(accel.cy, 1, 2, Y);
     sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
-    client.println(URL);
-    Serial.println(URL);
-    client.print("Connection: close");
-    client.stop();
+    sendData(URL);
     //escrever(URL);
     //ler();
     printLCD();
@@ -173,4 +173,5 @@ void loop() {
   }
   Serial.println();
 }
+
 
