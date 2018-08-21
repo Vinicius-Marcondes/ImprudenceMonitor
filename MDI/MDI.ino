@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Ethernet.h>
-#include <LiquidCrystal.h>
+//#include <LiquidCrystal.h>
 #include <SparkFun_MMA8452Q.h>
 #define pinoutput 3
 #define port 80
@@ -13,7 +13,7 @@ File myFile;
 IPAddress server(191, 232, 196, 80); //ip da internet
 IPAddress ip(192, 168, 100, 60); //ip do arduino
 EthernetClient client;
-LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
+//LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char URL[64];
@@ -23,22 +23,27 @@ char Y[8];
 String userid;
 
 void setup() {
-  pinMode(pinoutput, OUTPUT);
-  analogWrite(pinoutput, 10);
+  //pinMode(pinoutput, OUTPUT);
+  //analogWrite(pinoutput, 10);
 
   Serial.begin(9600);
-  lcd.begin(16, 2);
-  //while (!SD.begin(4));
+  //lcd.begin(16, 2);
+  Serial.println("SD INITIALIZING");
+  while(!SD.begin(4)){
+    Serial.println("Failed");
+  }
   accel.init(SCALE_8G, ODR_6);
   Ethernet.begin(mac, ip);
 
-  lcd.print("Initializing");
+  //lcd.print("Initializing");
 
   delay(100);
-
+  Serial.println("GETTING USERID AND CONT");
   getId();
   getCont();
-  printLCD();
+  //printLCD();
+  Serial.println(userid);
+  Serial.println(CONT);
 }
 
 bool conn() {
@@ -125,7 +130,7 @@ void printCalculatedAccels() {
   Serial.print("\t");
 }
 
-void printLCD() {
+/*void printLCD() {
   lcd.setCursor(0, 0);
   lcd.print("User ID: ");
   lcd.setCursor(8, 0);
@@ -134,7 +139,7 @@ void printLCD() {
   lcd.print("Delitos: ");
   lcd.setCursor(8, 1);
   lcd.print(CONT);
-}
+}*/
 
 bool sendData(char var[64]) {
   Serial.println(var);
@@ -156,7 +161,7 @@ bool sendData(char var[64]) {
 void loop() {
   accel.read();
   printCalculatedAccels();
-  printLCD();
+  //printLCD();
   if (accel.cx > 1) {
     tone(2, 440);
     delay(500);
@@ -166,9 +171,9 @@ void loop() {
     dtostrf(accel.cy, 1, 2, Y);
     sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
     sendData(URL);
-    //escrever(URL);
-    //ler();
-    printLCD();
+    escrever(URL);
+    ler();
+    //printLCD();
     delay(5000);
   }
   Serial.println();
