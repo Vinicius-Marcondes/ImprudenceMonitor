@@ -10,8 +10,8 @@
 
 MMA8452Q accel;
 File myFile;
-IPAddress server(191, 232, 196, 80); //ip da internet
-IPAddress ip(192, 168, 100, 60); //ip do arduino
+IPAddress server(191,232,196,80); //ip da internet
+IPAddress ip(192,168,100,60); //ip do arduino
 EthernetClient client;
 LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
 
@@ -24,14 +24,12 @@ String userid;
 
 void setup() {
   pinMode(pinoutput, OUTPUT);
-  analogWrite(pinoutput, 10);
+  analogWrite(pinoutput, 100);
 
   Serial.begin(9600);
   lcd.begin(16, 2);
   Serial.println("SD INITIALIZING");
-  /*while(!SD.begin(4)){
-    Serial.println("Failed");
-  }*/
+  
   accel.init(SCALE_8G, ODR_6);
   Ethernet.begin(mac, ip);
 
@@ -44,6 +42,10 @@ void setup() {
   printLCD();
   Serial.println(userid);
   Serial.println(CONT);
+  delay(1000);
+  SD.begin(4);
+  delay(1000);
+
 }
 
 bool conn() {
@@ -103,23 +105,21 @@ void escrever(char var[64]) {
     Serial.println("error gravar");
   }
 }
+
 void ler() {
   myFile = SD.open("log.txt");
   if (myFile) {
-    char buff[128];
-    Serial.println("log.txt:");
-    //conn();
+    Serial.println("LOG.txt:");
+
+    // read from the file until there's nothing else in it:
     while (myFile.available()) {
-      myFile.read(buff, 128);
+      Serial.write(myFile.read());
     }
-    Serial.println("-------------");
-    Serial.println(buff);
-    Serial.println("-------------");
-    delay(5000);
+    // close the file:
     myFile.close();
-  }
-  else {
-    Serial.println("error ler");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening log.txt");
   }
 }
 
@@ -131,6 +131,7 @@ void printCalculatedAccels() {
 }
 
 void printLCD() {
+  //lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("User ID: ");
   lcd.setCursor(8, 0);
@@ -141,7 +142,7 @@ void printLCD() {
   lcd.print(CONT);
 }
 
-bool sendData(char var[64]) {
+bool sendData(String var) {
   Serial.println(var);
   if (conn() == true) {
     if (client.println(var)) {
@@ -166,16 +167,18 @@ void loop() {
     delay(500);
     noTone(2);
     CONT++;
+    printLCD();
     dtostrf(accel.cx, 1, 2, X);
     dtostrf(accel.cy, 1, 2, Y);
     sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
     sendData(URL);
-    escrever(URL);
-    ler();
-    printLCD();
+    //escrever(URL);
+    //ler();
+
     delay(5000);
   }
   Serial.println();
 }
+
 
 
