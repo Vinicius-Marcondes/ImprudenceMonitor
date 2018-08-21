@@ -67,15 +67,6 @@ void ler() {
   }
 }
 
-bool sendData(char var[64]) {
-  Serial.print("\nenviando URL");
-  conn();
-  client.println(var);
-  client.println("Connection: close");
-  client.stop();
-  return true;
-}
-
 void printCalculatedAccels() {
   Serial.print(accel.cx);
   Serial.print("\t");
@@ -102,7 +93,10 @@ void loop() {
     Serial.print(tam);
     //escrever();
     //ler();
-    sendData(URL);
+    conn();
+    client.println(URL);
+    client.println("Connection: close");
+    client.stop();
     delay(5000);
   }
   Serial.println();
