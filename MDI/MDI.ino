@@ -11,130 +11,151 @@ CREATE TABLE MDI.REGISTRO (
  );
   -------------------------------------------------------------------------*/
 #include <SPI.h>
-#include <Ethernet.h>
 #include <Wire.h>
-#include <SparkFun_MMA8452Q.h>
+#include <Ethernet.h>
 #include <LiquidCrystal.h>
+#include <SparkFun_MMA8452Q.h>
 
-LiquidCrystal lcd(4,5,6,7,8,9);
+#define port 80
+#define pinoutput 3
+#define SS_SD_CARD 4
+#define ID_ARDUINO  1
+
 MMA8452Q accel;
 
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };//mac do arduino
-char ID [64];
-char URL[128];
-char NOME[128];
-char X[16];
-char Y[16];
-char c;//infrações
-char i;//lê os valores do nome do funcionário
-int CONT;
-int ID_ARDUINO = 1;
-int t = 0;
-float f;
-float b;
-float delta;
-String string;//Armazena o nome completo do funcionário
-IPAddress server(191,239,252,98); //ip da internet
-IPAddress ip(192,168,100,60); //ip do arduino
 EthernetClient client;
+LiquidCrystal lcd(4, 5, 9, 8, 7, 6);
+IPAddress ip(0,0,0,0); //ip do arduino
+IPAddress server(191,232,196,80); //ip da internet
+
+
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+char URL[64];
+int CONT;
+char X[8];
+char Y[8];
+String userid;
 
 void setup() {
+  pinMode(pinoutput, OUTPUT);
+  analogWrite(pinoutput, 100);
+
   Serial.begin(9600);
   lcd.begin(16, 2);
-  lcd.setCursor(0,0);
-  lcd.print("Initializing...");  
+
+  Serial.println("aaaah");
+  while(!client.connect(server,port));
+  Serial.println("eeee");
+  
+  accel.init(SCALE_8G, ODR_6);
   Ethernet.begin(mac, ip);
-  delay(5000);
-  accel.init();
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Connecting...");
-  while (!client.connect(server, 8080));
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Connected");
+
+  lcd.print("Initializing");
+
+  Serial.println("GETTING USERID AND CONT");
+  getId();
+  getCont();
+  printLCD();
+  Serial.println(userid);
+  Serial.println(CONT);
   delay(1000);
-  lcd.clear();
-  lcd.print("Fetching data...");
-  sprintf(ID, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
-  client.println(ID);
-  delay(2000);
-  c = client.read();//recebe numero de infrações
-  CONT = c - 48;//converte c em inteiro;
-  client.println("Connection: close");
-  client.stop();  
-  while (!client.connect(server, 8080));
-  sprintf(NOME, "GET /nome.php?ID_ARDUINO=%d", ID_ARDUINO);
-  client.println(NOME);
-  delay(500);
-  while(client.available()){//loop para pegar o id do funcionário
-    i = client.read();
-    string = string+i;
-    client.println("Connection: keep-alive");
-  }//fecha o loop
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("User ID: ");
-  lcd.setCursor(8,0);
-  lcd.print(string);
-  lcd.setCursor(0,1);
-  lcd.print("Delitos:");
-  lcd.setCursor(8,1);
-  lcd.print(CONT);
-  Serial.print(CONT);
-  client.println("Connection: close");
-  client.stop();  
 }
 
-void loop() {
-  if (accel.available()) {
-    accel.read();
-    printCalculatedAccels();
-    Serial.println();
-    if (t == 0) {
-      f = accel.cy;
-      t = 1;
-    } else {
-      b = accel.cy;
-      t = 0;
+bool conn() {
+  if (client.connect(server, port)) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+void getId() {
+  if (conn()) {
+    sprintf(URL, "GET /userID.php?ID_ARDUINO=%d", ID_ARDUINO);
+    client.println(URL);
+    client.println("Connection: close");
+    client.println();
+  } else {
+    getId();
+  }
+  delay(2000);
+  while (client.available()) {
+    char c = client.read();
+    userid = userid + c;
+  }
+  client.stop();
+}
+void getCont() {
+  if (conn()) {
+    sprintf(URL, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
+    client.println(URL);
+    delay(500);
+    String cont;
+    while (client.available()) {
+      char c = client.read();
+      cont = cont + c;
     }
-    delta = (b - f);
-    if (accel.cx > 1 || delta > 0.7 || delta < -0.7|| accel.cy >1 || accel.cy <-1) {
-      while (!client.connect(server, 8080));
-      float VALOR_X = accel.cx;
-      float VALOR_Y = accel.cy;
-      CONT++;
-      Serial.println("INFRACAO");
-      lcd.setCursor(0,1);
-      lcd.print("Delitos:");
-      lcd.setCursor(8,1);
-      lcd.print(CONT);
-      dtostrf(VALOR_X, 1, 2, X);
-      dtostrf(VALOR_Y, 1, 2, Y);
-      sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
-      client.println(URL);//ENVIA A URL USANDO GET
-      Serial.println("URL enviada: ");
-      Serial.println(URL);
-      accel.cx = 0;
-      accel.cy = 0;
-      tone (3,440);
-      delay(500);
-      noTone(3);
-      delay(200);
-      client.println("Connection: close");
-      client.stop();
-      delay(500);
-      delta = 0;
-      f=0;
-      b=0;
-    }
+    CONT = cont.toInt();
+    Serial.println(CONT);
+    client.println("Connection: close");
+    client.stop();
+  }
+  else {
+    getCont();
   }
 }
 
 void printCalculatedAccels() {
-  Serial.print(accel.cx, 3);
-  Serial.print('\t');
-  Serial.print(accel.cy, 3);
-  Serial.print('\t');
+  Serial.print(accel.cx);
+  Serial.print("\t");
+  Serial.print(accel.cy);
+  Serial.print("\t");
 }
 
+void printLCD() {
+  //lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("User ID: ");
+  lcd.setCursor(8, 0);
+  lcd.print(userid);
+  lcd.setCursor(0, 1);
+  lcd.print("Delitos: ");
+  lcd.setCursor(8, 1);
+  lcd.print(CONT);
+}
+
+bool sendData(String var) {
+  Serial.println(var);
+  if (conn() == true) {
+    if (client.println(var)) {
+      client.print("Connection: close");
+      client.stop();
+      return true;
+    }
+    else {
+      sendData(var);
+    }
+  }
+  else {
+    sendData(var);
+  }
+}
+
+void loop() {
+  accel.read();
+  printCalculatedAccels();
+  if (accel.cx > 1) {
+    tone(2, 440);
+    delay(500);
+    noTone(2);
+    CONT++;
+    printLCD();
+    dtostrf(accel.cx, 1, 2, X);
+    dtostrf(accel.cy, 1, 2, Y);
+    sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
+    sendData(URL);
+    delay(5000);
+  }
+  Serial.println();
+}
