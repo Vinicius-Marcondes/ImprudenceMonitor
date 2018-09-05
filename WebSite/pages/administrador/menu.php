@@ -140,18 +140,6 @@
 			<a href='profile.php'><i class='material-icons'>person</i><span>Perfil</span></a>
 		</li>";
 		} ?>
-		<?php if($nome_arquivo == 'editar_profile'){ 
-		echo
-		"<li class='active' style='display: none;'>
-			<a href='editar_profile.php'><i class='material-icons'>person</i><span>Perfil</span></a>
-		</li>";
-		} ?>
-		<?php if($nome_arquivo == 'editar_perfil'){ 
-		echo
-		"<li class='active' style='display: none;'>
-			<a href='editar_perfil.php'><i class='material-icons'>person</i><span>Perfil</span></a>
-		</li>";
-		} ?>
       </ul>
     </div>
     <div class="legal">

@@ -16,26 +16,16 @@
 						<div class="card">
 							<div class="header">
 								<h2>DADOS PESSOAIS</h2>
-								<ul class="header-dropdown m-r--5">
-									<li class="dropdown">
-										<a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-											<i class="material-icons">more_vert</i>
-										</a>
-										<ul class="dropdown-menu pull-right">
-											<li><a href="editar_profile.php">Editar Dados Pessoais</a></li>
-										</ul>
-									</li>
-								</ul>
 							</div>
 							<div class="row" style="padding: 20px;">
-								<div class="col-md-12 col-sm-6 col-lg-4" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>Nome: </b><?php echo $_SESSION['nome']; ?></p></div>
-								<div class="col-md-12 col-sm-6 col-lg-5" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>Email: </b><?php echo $_SESSION['email']; ?></p></div>
+								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>Nome: </b><?php echo $_SESSION['nome']; ?></p></div>
+								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>Email: </b><?php echo $_SESSION['email']; ?></p></div>
 								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>RG: </b><?php echo $_SESSION['rg']; ?></p></div>
 								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>CPF: </b><?php echo $_SESSION['cpf']; ?></p></div>
 								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>Telefone: </b><?php echo $_SESSION['telefone']; ?></p></div>
 								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>CEP: </b><?php echo $_SESSION['cep']; ?></p></div>
 								<div class="col-md-12 col-sm-6 col-lg-3" style="margin-bottom: 10px;"><p style="font-size: 18px;"><b>Sexo: </b><?php echo $_SESSION['sexo']; ?></p></div>
-								<div class="col-lg-12 col-md-3 col-sm-3 col-xs-12"><a href="index.php">Voltar</a></div>
+								<div class="col-lg-12 col-md-3 col-sm-3 col-xs-12"><a href="editar_profile.php">Editar</a></div><div class="col-lg-12 col-md-3 col-sm-3 col-xs-12"><a href="index.php">Voltar</a></div>
 							</div>
 						</div>
 					</div>

@@ -4,7 +4,7 @@
 
 	if(isset($_POST['email']) && isset($_POST['password'])){
 		$email = $conecta_banco->real_escape_string($_POST['email']);
-		$senha = $conecta_banco->real_escape_string($_POST['password']);
+    $senha = $conecta_banco->real_escape_string($_POST['password']);
 		$senha = hash("sha256", hash("sha256", $senha));
 
 		$c_empresa = "SELECT * FROM empresas where emailE = '$email' AND senhaE = '$senha'";

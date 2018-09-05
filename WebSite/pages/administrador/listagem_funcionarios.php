@@ -33,7 +33,6 @@
 											<th>CPF</th>
 											<th>Telefone</th>
 											<th>CEP</th>
-											<th>Sexo</th>
 											<th>Função</th>
 											<th>Empresa</th>
 											<th>Excluir</th>
@@ -48,7 +47,6 @@
 											<th>CPF</th>
 											<th>Telefone</th>
 											<th>CEP</th>
-											<th>Sexo</th>
 											<th>Função</th>
 											<th>Empresa</th>
 											<th>Excluir</th>
@@ -66,7 +64,6 @@
 											$cpf = $coluna_pessoa['cpfP'];
 											$telefone = $coluna_pessoa['telefoneP'];
 											$cep = $coluna_pessoa['cepP'];
-											$sexo = $coluna_pessoa['sexoP'];
 											$perfilP = $coluna_pessoa['perfilP'];
 											$c_perfil = "SELECT * FROM perfil WHERE idPE = '$perfilP'";
 											$v_perfil =  $conecta_banco->query($c_perfil);
@@ -89,7 +86,6 @@
 											<td><?php echo $cpf; ?></td>
 											<td><?php echo $telefone; ?></td>
 											<td><?php echo $cep; ?></td>
-											<td><?php echo $sexo; ?></td>
 											<td><?php echo $perfil; ?></td>
 											<td><?php echo $empresa; ?></td>
 											<td><form method="post" action="processos/deletar_pessoa.php"><button type="submit" name="deletar" value="<?php echo $id; ?>" class="btn btn-danger btn-circle waves-effect waves-circle waves-float"><i class="material-icons">delete</i></button></form></td>
