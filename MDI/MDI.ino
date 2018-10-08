@@ -28,7 +28,7 @@ MMA8452Q accel;
 EthernetClient client;
 LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
 IPAddress ip(192, 168, 100, 68); //ip do arduino
-IPAddress server(192, 168, 1, 100); //ip da internet
+IPAddress server(191,232,240,140); //ip da internet
 
 char X[6];
 char Y[6];
