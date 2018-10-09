@@ -106,7 +106,7 @@
                                             <tr>
                                                 <th style="width: 5%;">#</th>
                                                 <th>X</th>
-                                                <th>Y</th>
+                                                
                                                 <th style="width: 15%;">Data do ocorrido</th>
                                             </tr>
                                         </thead>
@@ -115,7 +115,7 @@
                                             <tr>
                                                 <td><?php echo $imprudencias['ID_IMPRUDENCIAS']; ?></td>
                                                 <td><?php echo $imprudencias['X_IMPRUDENCIAS']; ?></td>
-                                                <td><?php echo $imprudencias['Y_IMPRUDENCIAS']; ?></td>
+                                                
                                                 <td><?php echo $imprudencias['DATA_IMPRUDENCIAS']; ?></td>
                                             </tr>
 											<?php } ?>

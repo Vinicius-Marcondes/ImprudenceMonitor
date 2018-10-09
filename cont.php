@@ -1,7 +1,7 @@
 <?php
 require("conn.php");
-$ID_ARDUINO = $_GET['ID_ARDUINO'];
-$cont = $conn->query("SELECT * FROM imprudencias WHERE EQUIPAMENTOS_ID_IMPRUDENCIAS = '$ID_ARDUINO'");
+$userId = $_GET['userId'];
+$cont = $conn->query("SELECT X_IMPRUDENCIAS FROM imprudencias WHERE PESSOAS_ID_IMPRUDENCIAS = '$userId'");
 while($row = $cont->fetch_array()){
 	echo $row['X_IMPRUDENCIAS'];
 }

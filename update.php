@@ -3,29 +3,21 @@
     require('conn.php');
     
 if(@$_GET){
-$ID_ARDUINO = $_GET['ID_ARDUINO'];
+    $ID_USER = $_GET['idUser'];
+    $cont = $conn->query("SELECT X_IMPRUDENCIAS FROM imprudencias WHERE PESSOAS_ID_IMPRUDENCIAS = $ID_USER");
+    while($row = $cont->fetch_array()){
+	    $amount = $row['X_IMPRUDENCIAS'];
+    }
     $CONT = $_GET['CONT'];
-    $VALOR_X = $_GET['VALOR_X'];
-    $VALOR_Y = $_GET['VALOR_Y'];
-    if(mysqli_query($conn,"UPDATE imprudencias SET X_IMPRUDENCIAS = '$CONT' WHERE EQUIPAMENTOS_ID_IMPRUDENCIAS =$ID_ARDUINO")){
-        echo "Dados atualizados com sucesso!";
-    }else{
-        echo "Falha ao atualizar os dados!";
+    if($CONT>$amount){
+        if(mysqli_query($conn,"UPDATE imprudencias SET X_IMPRUDENCIAS = '$CONT' WHERE ID_IMPRUDENCIAS = $ID_USER")){
+            echo "Dados atualizados com sucesso!";
+        }else{
+            echo "Falha ao atualizar os dados!";
+        }
+    }
+    else{
+        echo "amount < CONT";
     }
 }?>
-<html>
-<head>
-<meta charset="UTF-8">
-</head>
-<body>
-<form action="update.php" method="get">
-<input type="text" name="ID_ARDUINO">
-<input type="text" name="CONT">
-<input type="text" name="VALOR_X">
-<input type="text" name="VALOR_Y">
-<input type="submit">
-</form>
 
-
-</body>
-</html>

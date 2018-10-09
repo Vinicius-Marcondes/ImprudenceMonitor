@@ -1,15 +1,3 @@
-/*-----------------------------------------------------------------------
-  CREATE DATABASE MDI;
-  CREATE TABLE MDI.REGISTRO (
-  ID INTEGER PRIMARY KEY AUTO_INCREMENT,
-  ID_ARDUINO INT NOT NULL,
-  FUNCIONARIO CHAR(40),
-  CONT INT,
-  VALOR_X FLOAT,
-  VALOR_Y FLOAT,
-  RECORDED TIMESTAMP
-  );
-  -------------------------------------------------------------------------*/
 #include <SPI.h>
 #include <Wire.h>
 #include <EEPROM.h>
@@ -27,15 +15,15 @@ MMA8452Q accel;
 
 EthernetClient client;
 LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
-IPAddress ip(192, 168, 100, 68); //ip do arduino
-IPAddress server(191,232,240,140); //ip da internet
+IPAddress ip(192,168,1,102); //ip do arduino
+IPAddress server(192,168,1,100); //ip da internet
 
 char X[6];
 char Y[6];
 int CONT;
 String userId;
 bool net;
-char URL[64];
+char URL[98];
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 void setup() {
@@ -48,25 +36,29 @@ void setup() {
   digitalWrite(red, 1);
 
   Serial.begin(9600);
+  
   lcd.begin(16, 2);
   lcd.print("Initializing");
-
   accel.init(SCALE_8G, ODR_6);
   Ethernet.begin(mac, ip);
-
   conn();
   client.print("Connection: close");
   client.stop();
-
+  eepromRead();
   Serial.println("Status ethernet:");
   Serial.print(net);
   Serial.println("GETTING USERID AND CONT");
-
+  
   getUserId();
   Serial.print("user: ");
   Serial.println(userId);
 
-  getCont();
+  getCont(userId);
+
+  if(net == false){
+    userId = EEPROM.read(0);
+    CONT = EEPROM.read(1);
+  }
   printLCD();
 
   digitalWrite(red, 0);
@@ -87,7 +79,7 @@ void loop() {
     printLCD();
     dtostrf(accel.cx, 1, 2, X);
     dtostrf(accel.cy, 1, 2, Y);
-    sendData(X, Y, CONT);
+    sendData(userId,X, Y, CONT);
     delay(5000);
     digitalWrite(red, 0);
     digitalWrite(green, 1);
@@ -95,22 +87,27 @@ void loop() {
   Serial.println();
 }
 
-//void printEeprom() {
-//  EEPROM.put(0, userData);
-//}
-//
-//void readEeprom() {
-//  EEPROM.get(0, userData);
-//}
-
 bool conn() {
-  while (!client.connect(server, port));
-  net = true;
+  int c = 0;
+  while (c < 3){
+    Serial.println(c);
+    if(client.connect(server, port)){
+      net = true;
+      return true;  
+    }
+    c++;
+    if(c == 3){
+      net = false;
+      return false;
+    }
+  }
+  
 }
 
-bool sendData(char X[6], char Y[6], int CONT) {
-
-  sprintf(URL, "GET /update.php?ID_ARDUINO=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID_ARDUINO, CONT, X, Y);
+bool sendData(String id,char X[6], char Y[6], int CONT) {
+  int ID = id.toInt();
+  eepromWrite(userId, CONT);
+  sprintf(URL, "GET /ImprudenceMonitor/update.php?idUser=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID, CONT, X, Y);
   Serial.println(URL);
   if (conn()) {
     client.println(URL);
@@ -120,8 +117,9 @@ bool sendData(char X[6], char Y[6], int CONT) {
 }
 
 void getUserId() {
-  if (conn()) {
-    sprintf(URL, "GET /userID.php?ID_ARDUINO=%d", ID_ARDUINO);
+  if(net == true){
+    while(!conn());
+    sprintf(URL, "GET /ImprudenceMonitor/userID.php?ID_ARDUINO=%d", ID_ARDUINO);
     client.println(URL);
     client.println("Connection: close");
     client.println();
@@ -134,9 +132,12 @@ void getUserId() {
   }
 }
 
-void getCont() {
-  if (conn()) {
-    sprintf(URL, "GET /cont.php?ID_ARDUINO=%d", ID_ARDUINO);
+void getCont(String id) {
+  int ID = id.toInt();
+  delay(5000);
+  if(net == true){
+    while(!conn());
+    sprintf(URL, "GET /ImprudenceMonitor/cont.php?userId=%d", ID);
     client.println(URL);
     delay(500);
     String cont;
@@ -155,6 +156,34 @@ void printCalculatedAccels() {
   Serial.print("\t");
   Serial.print(accel.cy);
   Serial.print("\t");
+  Serial.print(accel.cz);
+  Serial.print("\t");
+}
+
+void eepromWrite(String userId, int CONT){
+  int ID = userId.toInt();
+  EEPROM.write(0, ID);
+  EEPROM.write(1, CONT);  
+}
+
+void eepromRead(){
+  int ID = EEPROM.read(0);
+  int CONT = EEPROM.read(1);
+  Serial.println("---------eeprom.ID---------");  
+  Serial.println(ID);
+  Serial.println("---------eeprom.CONT---------");  
+  Serial.println(CONT);
+  Serial.println("---------------------------");
+  int X, Y = 0;
+  delay(100);
+  sprintf(URL, "GET /ImprudenceMonitor/update.php?idUser=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID, CONT, X, Y);
+  Serial.println(URL);
+  if (conn()) {
+    client.println(URL);
+    client.print("Connection: close");
+    client.stop();    
+  Serial.println("---------Enviado---------");
+  }
 }
 
 void printLCD() {
