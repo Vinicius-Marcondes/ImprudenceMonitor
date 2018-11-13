@@ -34,8 +34,6 @@ void setup() {
   digitalWrite(green, 0);
   pinMode(red, OUTPUT);
   digitalWrite(red, 1);
-
-  Serial.begin(9600);
   
   lcd.begin(16, 2);
   lcd.print("Initializing");
@@ -45,13 +43,8 @@ void setup() {
   client.print("Connection: close");
   client.stop();
   eepromRead();
-  Serial.println("Status ethernet:");
-  Serial.print(net);
-  Serial.println("GETTING USERID AND CONT");
   
   getUserId();
-  Serial.print("user: ");
-  Serial.println(userId);
 
   getCont(userId);
 
@@ -151,15 +144,6 @@ void getCont(String id) {
   }
 }
 
-void printCalculatedAccels() {
-  Serial.print(accel.cx);
-  Serial.print("\t");
-  Serial.print(accel.cy);
-  Serial.print("\t");
-  Serial.print(accel.cz);
-  Serial.print("\t");
-}
-
 void eepromWrite(String userId, int CONT){
   int ID = userId.toInt();
   EEPROM.write(0, ID);
@@ -169,11 +153,6 @@ void eepromWrite(String userId, int CONT){
 void eepromRead(){
   int ID = EEPROM.read(0);
   int CONT = EEPROM.read(1);
-  Serial.println("---------eeprom.ID---------");  
-  Serial.println(ID);
-  Serial.println("---------eeprom.CONT---------");  
-  Serial.println(CONT);
-  Serial.println("---------------------------");
   int X, Y = 0;
   delay(100);
   sprintf(URL, "GET /ImprudenceMonitor/update.php?idUser=%d&CONT=%d&VALOR_X=%s&VALOR_Y=%s", ID, CONT, X, Y);
@@ -182,7 +161,6 @@ void eepromRead(){
     client.println(URL);
     client.print("Connection: close");
     client.stop();    
-  Serial.println("---------Enviado---------");
   }
 }
 
